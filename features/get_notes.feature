@@ -7,7 +7,7 @@ Feature: List notes
     And the response should contain an empty list of notes
 
   Scenario: Get list of notes when notes exist
-    Given there is a note with title "Тестовая заметка" and content "Содержание заметки"
+    Given a valid note payload
     When I send a request to create the note
     When I send a request to get the list of notes
     Then the response status code should be 200

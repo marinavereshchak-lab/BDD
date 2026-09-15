@@ -1,15 +1,17 @@
 Feature: Update a note by ID
 
   Scenario: Update a note with a valid ID
-    Given there is a note with title "Старая заметка" and content "Старый контент"
+    Given a valid note payload
     When I send a request to create the note
 
-    When I send a request to update the note with id "{last_note_id}" to title "Новая заметка" and content "Новый контент"
+    Given an updated note payload
+    When I send a request to update the last created note with the updated payload
     Then the response status code should be 200
-    And the response should contain the correct title "Новая заметка"
-    And the response should contain the correct content "Новый контент"
+    And the response should contain the correct title "Обновлённая заметка"
+    And the response should contain the correct content "Текст после редактирования"
 
   Scenario: Try to update a note with an invalid ID
 
-    When I send a request to update the note with id "999999" to title "Любая заметка" and content "Любой контент"
+    Given an updated note payload
+    When I send a request to update the note with id "999999" using the current payload
     Then the response status code should be 404

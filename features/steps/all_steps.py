@@ -1,20 +1,19 @@
 from behave import then, given, when
 from pages.notes_api import NotesAPI
+from factories.note_factory import (create_valid_note, create_invalid_note, create_updated_note)
 
 
+@given('a valid note payload')
+def step_prepare_valid_payload(context):
+    context.payload = create_valid_note()
 
-@given('there is a note with title "{title}" and content "{content}"')
-def step_prepare_payload(context, title, content):
-    context.payload = {
-            "title": title,
-            "content": content
-    }
+@given('an invalid note payload')
+def step_prepare_invalid_payload(context):
+    context.payload = create_invalid_note()
 
-@given('there is a note without title')
-def step_prepare_payload_no_title(context):
-    context.payload = {
-        "content": "Это валидное содержание"
-    }
+@given('an updated note payload')
+def step_prepare_updated_payload(context):
+    context.payload = create_updated_note()
 
 @given('all notes are deleted')
 def step_delete_all_notes(context):
@@ -62,21 +61,22 @@ def step_send_delete_last_note(context):
 def step_send_delete_note_by_id(context, note_id):
     context.response = context.api.delete_note(note_id)
 
-@when('I send a request to update the note with id "{note_id_marker}" to title "{new_title}" and content "{new_content}"')
-def step_send_update_note(context, note_id_marker, new_title, new_content):
-    # Если написано {last_note_id}, берём из контекста
-    if note_id_marker == "{last_note_id}":
-        if not hasattr(context, 'last_note_id'):
-            raise AssertionError("Сначала нужно создать заметку!")
-        note_id = context.last_note_id
-    else:
-        note_id = note_id_marker
+@when('I send a request to update the last created note with the updated payload')
+def step_send_update_with_payload(context):
+    if not hasattr(context, 'last_note_id') or context.last_note_id is None:
+        raise AssertionError(
+            "Сначала нужно создать заметку! В контексте нет last_note_id."
+        )
 
-    payload = {
-        "title": new_title,
-        "content": new_content
-    }
-    context.response = context.api.update_note(note_id, new_title, new_content)
+    note_id = context.last_note_id
+    payload = context.payload
+
+    context.response = context.api.update_note(note_id, payload["title"], payload["content"])
+
+@when('I send a request to update the note with id "{note_id}" using the current payload')
+def step_send_update_by_id_with_payload(context, note_id):
+    payload = context.payload
+    context.response = context.api.update_note(note_id, payload["title"], payload["content"])
 
 @then('the response status code should be {status_code:d}')
 def step_check_status(context, status_code):

@@ -1,7 +1,7 @@
 Feature: Delete the note
 
   Scenario: Delete a note with valid ID
-    Given there is a note with title "Заметка для удаления" and content "Контент"
+    Given a valid note payload
     When I send a request to create the note
     When I send a request to delete the last created note
     Then the response status code should be 200
